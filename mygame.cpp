@@ -36,10 +36,39 @@ void myGame::gameStart(const QVector<QString> &strings_){
         }
     }
     emit gameStateChange(*state);
+    emit gameStarted();
+}
+
+void myGame::checkDirection(int x_, int y_, int dx_, int dy_,int &len_,int &cnt_){
+    len_=cnt_=0;
+    for (int i=1;;++i){
+        int px_=x_+dx_*i;
+        int py_=y_+dy_*i;
+        if (px_<0 || px_>=width || py_<0 || py_>=height) break;
+        if (state->at(px_).at(py_)!=state->at(x_).at(y)) {
+            if (state->at(px_).at(py_)==NOTHING || state->at(px_).at(py_)==WARNING) ++cnt;
+            break;
+        }
+        ++len_;
+    }
+    for (int i=1;;++i){
+        int px_=x_-dx_*i;
+        int py_=y_-dy_*i;
+        if (px_<0 || px_>=width || py_<0 || py_>=height) break;
+        if (state->at(px_).at(py_)!=state->at(x_).at(y)) {
+            if (state->at(px_).at(py_)==NOTHING || state->at(px_).at(py_)==WARNING) ++cnt;
+            break;
+        }
+        ++len_;
+    }
 }
 
 bool myGame::checkWarningDirection(int x_, int y_, int dx_, int dy_){
-
+    int len_,cnt_;
+    checkDirection(x_,y_,dx_,dy_,len_,cnt_);
+    if (len_==3 && cnt_>=2) return true;
+    if (len_==4 && cnt_>=1) return true;
+    return false;
 }
 
 bool myGame::checkWarningState(QChar chess_to_check_){
@@ -84,8 +113,21 @@ void myGame::setWarningPoint(){
     }
 }
 
-void myGame::checkGameResult(int x_,int y_){
+bool myGame::checkResultDirection(int x_, int y_, int dx_, int dy_){
+    int len_,cnt_;
+    checkDirection(x_,y_,dx_,dy_,len_,cnt_);
+    if (len_>=5) return true;
+}
 
+void myGame::checkGameResult(int x_,int y_){
+    bool flag=false;
+    if (checkResultDirection(x_,y_,1,0)) flag=true;
+    if (checkResultDirection(x_,y_,0,1)) flag=true;
+    if (checkResultDirection(x_,y_,1,1)) flag=true;
+    if (checkResultDirection(x_,y_,1,-1)) flag=true;
+    if (flag){
+
+    }
 }
 
 void myGame::gameOperate(const QVector<QString> &strings_){
@@ -103,4 +145,14 @@ void myGame::gameOperate(const QVector<QString> &strings_){
     setWarningPoint();
     checkGameResult(x_,y_);
     emit gameStateChange(*state);
+    emit gameOperated();
+}
+
+void myGame::getGameState(QVector<QString> &strings_){
+    strings_=*state;
+    emit gameStateGotten();
+}
+
+void myGame::getGameResult(QVector<QString> &strings_){
+
 }

@@ -26,9 +26,11 @@ private:
 
     void initPointer();
     void deletePointer();
+    void checkDirection(int x_,int y_,int dx_,int dy_,int &len_,int &cnt_);
     bool checkWarningDirection(int x_,int y_,int dx_,int dy_);
     bool checkWarningState(QChar chess_to_check_);
     void setWarningPoint();
+    bool checkResultDirection(int x_,int y_,int dx_,int dy_);
     void checkGameResult(int x_,int y_);
 
 protected slots:
