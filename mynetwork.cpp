@@ -15,10 +15,16 @@ myNetwork::myNetwork(QObject *parent):QObject(parent){
 
 QHostAddress myNetwork::getIpAddress(){
     qDebug()<<"myNetwork::getIpAddress()";
+#ifdef _WIN32
+    //return QHostAddress(QHostAddress::LocalHost);
+#endif
     QList<QHostAddress> list_=QNetworkInterface::allAddresses();
+    qDebug()<<list_.size();
     for (int i=0;i<list_.size();++i){
         if (!list_.at(i).isLoopback()){
+            qDebug()<<"?"<<list_.at(i);
             if (list_.at(i).protocol()==QAbstractSocket::IPv4Protocol){
+                qDebug()<<"#$@@#$@#$";
                 return list_.at(i);
             }
         }
@@ -29,11 +35,13 @@ void myNetwork::setUpServer(){
     qDebug()<<"void myNetwork::setUpServer()";
     qDebug()<<"thread of network:"<<QThread::currentThreadId();
     server=new QTcpServer(this);
-    server->listen(getIpAddress(),8888);
+    qDebug()<<"getIpAddress():"<<getIpAddress();
+    server->listen();
     connect(server,SIGNAL(newConnection()),
             this,SLOT(actionOfConnectedServer()));
     qDebug()<<server->serverAddress()<<" "<<server->serverPort();
-    emit serverSetUp(server->serverAddress(),server->serverPort());
+    emit serverSetUp(getIpAddress(),server->serverPort());
+    //server->waitForNewConnection(-1);
 }
 
 void myNetwork::actionOfConnectedServer(){
@@ -50,10 +58,12 @@ void myNetwork::actionOfConnectedServer(){
 void myNetwork::setUpClient(QHostAddress address_,int port_){
     qDebug()<<"myNetwork::setUpClient()";
     qDebug()<<"thread of network:"<<QThread::currentThreadId();
+    qDebug()<<address_<<port_;
     socket=new QTcpSocket(this);
     socket->connectToHost(address_,port_);
     connect(socket,SIGNAL(connected()),
             this,SLOT(actionOfConnectedClient()));
+    //socket->waitForConnected(10000);
     emit clientSetUp(socket->localAddress(),socket->localPort());
 }
 
@@ -78,7 +88,7 @@ void myNetwork::readData(){
         string_+=QChar(*data_);
         ++data_;
     }
-    if (string_.size()){
+    if (string_.size()>=3){
         qDebug()<<"size:"<<sizeof(string_);
         emit dataRead(string_);
     }

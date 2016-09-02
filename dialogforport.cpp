@@ -1,16 +1,13 @@
-#include "dialogforclient.h"
-#include "ui_dialogforclient.h"
 #include "dialogforport.h"
+#include "ui_dialogforport.h"
 #include <QSignalMapper>
 
-dialogForClient::dialogForClient(QWidget *parent) :
+dialogForPort::dialogForPort(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::dialogForClient)
+    ui(new Ui::dialogForPort)
 {
     ui->setupUi(this);
-    ui->lineEdit->setText("127.0.0.1");
     QSignalMapper *mapper_=new QSignalMapper(this);
-
     connect(ui->pushButton_0,SIGNAL(clicked(bool)),
             mapper_,SLOT(map()));
     connect(ui->pushButton_1,SIGNAL(clicked(bool)),
@@ -31,9 +28,6 @@ dialogForClient::dialogForClient(QWidget *parent) :
             mapper_,SLOT(map()));
     connect(ui->pushButton_9,SIGNAL(clicked(bool)),
             mapper_,SLOT(map()));
-    connect(ui->pushButton,SIGNAL(clicked(bool)),
-            mapper_,SLOT(map()));
-
     mapper_->setMapping(ui->pushButton_0,"0");
     mapper_->setMapping(ui->pushButton_1,"1");
     mapper_->setMapping(ui->pushButton_2,"2");
@@ -44,38 +38,34 @@ dialogForClient::dialogForClient(QWidget *parent) :
     mapper_->setMapping(ui->pushButton_7,"7");
     mapper_->setMapping(ui->pushButton_8,"8");
     mapper_->setMapping(ui->pushButton_9,"9");
-    mapper_->setMapping(ui->pushButton,".");
-
     connect(mapper_,SIGNAL(mapped(QString)),
             this,SLOT(addText(QString)));
+    ui->lineEdit->setText("8888");
 }
 
-dialogForClient::~dialogForClient()
+dialogForPort::~dialogForPort()
 {
     delete ui;
 }
 
-void dialogForClient::addText(QString string_){
-    //if (ui->lineEdit->isUndoAvailable()){
+void dialogForPort::addText(QString string_){
     ui->lineEdit->setText(ui->lineEdit->text()+string_);
-    //}
 }
 
-void dialogForClient::on_pushButton_okay_clicked()
-{
-    close();
-    dialogForPort dialog_;
-    dialog_.exec();
-    QString port_=dialog_.text();
-    qDebug()<<port_<<"dsf ";
-    emit addressGotten(QHostAddress(ui->lineEdit->text()),port_.toInt());
+QString dialogForPort::text(){
+    return ui->lineEdit->text();
 }
 
-void dialogForClient::on_pushButton_delete_clicked()
+void dialogForPort::on_pushButton_delete_clicked()
 {
     QString string_=ui->lineEdit->text();
     if (string_.size()){
         string_.remove(string_.size()-1,1);
         ui->lineEdit->setText(string_);
     }
+}
+
+void dialogForPort::on_pushButton_clicked()
+{
+    close();
 }

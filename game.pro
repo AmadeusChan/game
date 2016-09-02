@@ -17,17 +17,20 @@ SOURCES += main.cpp\
     mynetwork.cpp \
     mygame.cpp \
     dialog.cpp \
-    dialogforclient.cpp
+    dialogforclient.cpp \
+    dialogforport.cpp
 
 HEADERS  += mainwindow.h \
     mynetwork.h \
     mygame.h \
     dialog.h \
-    dialogforclient.h
+    dialogforclient.h \
+    dialogforport.h
 
 FORMS    += mainwindow.ui \
     dialog.ui \
-    dialogforclient.ui
+    dialogforclient.ui \
+    dialogforport.ui
 
 QT += network
 
