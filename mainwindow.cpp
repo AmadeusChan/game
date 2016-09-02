@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     network=new myNetwork;
     qDebug()<<"main thread:"<<QThread::currentThreadId();
     thread_for_network=new QThread;
-    network->moveToThread(thread_for_network);
+    //network->moveToThread(thread_for_network);
     thread_for_network->start();
 
     connect(this,SIGNAL(toSetUpClient(QHostAddress,int)),
@@ -356,7 +356,8 @@ void MainWindow::readData(QString string_){
         operation_flag=true;
         player_at_present^=1;
         refreshTitle();
-    } else if (strings.at(0)=="END"){
+    }
+    if (string_.contains("END")){
         operation_flag=false;
         QMessageBox::information(this,tr("YOU LOSE!"),tr("Such a pity.You lose the game."));
     }

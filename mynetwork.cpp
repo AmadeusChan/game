@@ -70,7 +70,8 @@ void myNetwork::actionOfConnectedClient(){
 
 void myNetwork::readData(){
     qDebug()<<"myNetwork::readData()";
-    QByteArray ba=socket->read(10000);
+    QByteArray ba=socket->readAll();
+    if (ba.isEmpty()) return ;
     char *data_=ba.data();
     QString string_="";
     while (*data_){

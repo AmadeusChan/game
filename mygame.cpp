@@ -167,7 +167,7 @@ void myGame::gameOperate(QVector<QString> strings_){
     emit gameStateChange(*state);
     emit gameOperated();
     if (checkGameResult(x_,y_)) {
-        QThread::msleep(300);
+        //QThread::msleep(300);
         emit gameEnd();
     }
 }
