@@ -20,6 +20,7 @@ private:
     QTcpServer *server;
     QTcpSocket *socket;
     bool connected_flag;
+    QByteArray ba;
 
     QHostAddress getIpAddress();
 
@@ -37,8 +38,10 @@ private slots:
     void setUpClient(QHostAddress address_,int port_);
     void actionOfConnectedClient();
     void readData();
-    void writeData(const QString &data_);
+    void writeData(QString data_);
+    void disconnectNetwork();
 
 };
+
 
 #endif // MYNETWORK_H

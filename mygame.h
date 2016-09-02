@@ -1,10 +1,11 @@
 #ifndef MY_GAME_H
 #define MY_GAME_H
 
-#include "abstractgame.h"
+//#include "abstractgame.h"
 #include <QChar>
+#include <QObject>
 
-class myGame:public abstractGame{
+class myGame:public QObject{
 
     Q_OBJECT
 
@@ -23,6 +24,7 @@ public:
 private:
     QVector<QString> *state;
     int player,width,height;
+    bool flag[15][15];
 
     void initPointer();
     void deletePointer();
@@ -31,13 +33,22 @@ private:
     bool checkWarningState(QChar chess_to_check_);
     void setWarningPoint();
     bool checkResultDirection(int x_,int y_,int dx_,int dy_);
-    void checkGameResult(int x_,int y_);
+    bool checkGameResult(int x_,int y_);
 
-protected slots:
-    void gameStart(const QVector<QString> &strings_);
-    void gameOperate(const QVector<QString> &strings_);
-    void getGameState(QVector<QString> &strings_);
-    void getGameResult(QVector<QString> &strings_);
+private slots:
+    void gameStart();
+    void gameOperate(QVector<QString> strings_);
+    //void getGameState(QVector<QString> &strings_);
+    //void getGameResult(QVector<QString> &strings_);
+    void setGameState(QVector<QString> strings_);
+
+signals:
+    void gameStarted();
+    void gameOperated();
+    void gameStateGotten();
+    void gameEnd();
+    void gameStateChange(QVector<QString>);
+    void gameStateSet();
 
 };
 

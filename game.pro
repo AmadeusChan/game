@@ -15,13 +15,21 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     mynetwork.cpp \
-    mygame.cpp
+    mygame.cpp \
+    dialog.cpp \
+    dialogforclient.cpp
 
 HEADERS  += mainwindow.h \
     mynetwork.h \
-    abstractgame.h \
-    mygame.h
+    mygame.h \
+    dialog.h \
+    dialogforclient.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    dialog.ui \
+    dialogforclient.ui
 
 QT += network
+
+RESOURCES += \
+    image.qrc

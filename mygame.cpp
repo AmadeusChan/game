@@ -1,4 +1,6 @@
 #include "mygame.h"
+#include <QDebug>
+#include <QThread>
 
 int myGame::BLACK_PLAYER=0;
 int myGame::WHITE_PLAYER=1;
@@ -8,28 +10,35 @@ QChar myGame::WHITE_CHESS='W';
 QChar myGame::WARNING='R';
 QChar myGame::NOTHING='N';
 
-myGame::myGame(int player_,QObject *parent):abstractGame(parent),player(player_){
+myGame::myGame(int player_,QObject *parent):QObject(parent),player(player_){
+    qDebug()<<"myGame()";
     width=height=15;
     initPointer();
     QString string_="";
     for (int i=0;i<height;++i) string_+=NOTHING;
     state->clear();
     for (int i=0;i<width;++i) state->append(string_);
+    qRegisterMetaType<QVector<QString>>("QVector<QString>");
 }
 
 myGame::~myGame(){
+    qDebug()<<"~myGame()";
     deletePointer();
 }
 
 void myGame::initPointer(){
+    qDebug()<<"myGame::initPointer";
     state=new QVector<QString>;
 }
 
 void myGame::deletePointer(){
+    qDebug()<<"myGame::deletePointer";
     delete state;
 }
 
-void myGame::gameStart(const QVector<QString> &strings_){
+void myGame::gameStart(){
+    qDebug()<<"myGame::gameStart()";
+    qDebug()<<"thread of game:"<<QThread::currentThreadId();
     for (int i=0;i<width;++i){
         for (int j=0;j<height;++j){
             (*state)[i][j]=NOTHING;
@@ -40,30 +49,35 @@ void myGame::gameStart(const QVector<QString> &strings_){
 }
 
 void myGame::checkDirection(int x_, int y_, int dx_, int dy_,int &len_,int &cnt_){
-    len_=cnt_=0;
+    //qDebug()<<"myGame:checkDirection()";
+    cnt_=0;
+    len_=1;
     for (int i=1;;++i){
         int px_=x_+dx_*i;
         int py_=y_+dy_*i;
         if (px_<0 || px_>=width || py_<0 || py_>=height) break;
-        if (state->at(px_).at(py_)!=state->at(x_).at(y)) {
-            if (state->at(px_).at(py_)==NOTHING || state->at(px_).at(py_)==WARNING) ++cnt;
+        if (state->at(px_).at(py_)!=state->at(x_).at(y_)) {
+            if (state->at(px_).at(py_)==NOTHING || state->at(px_).at(py_)==WARNING) ++cnt_;
             break;
         }
+        flag[px_][py_]=false;
         ++len_;
     }
     for (int i=1;;++i){
         int px_=x_-dx_*i;
         int py_=y_-dy_*i;
         if (px_<0 || px_>=width || py_<0 || py_>=height) break;
-        if (state->at(px_).at(py_)!=state->at(x_).at(y)) {
-            if (state->at(px_).at(py_)==NOTHING || state->at(px_).at(py_)==WARNING) ++cnt;
+        if (state->at(px_).at(py_)!=state->at(x_).at(y_)) {
+            if (state->at(px_).at(py_)==NOTHING || state->at(px_).at(py_)==WARNING) ++cnt_;
             break;
         }
+        flag[px_][py_]=false;
         ++len_;
     }
 }
 
 bool myGame::checkWarningDirection(int x_, int y_, int dx_, int dy_){
+    //qDebug()<<"myGame::checkWarningDirection()";
     int len_,cnt_;
     checkDirection(x_,y_,dx_,dy_,len_,cnt_);
     if (len_==3 && cnt_>=2) return true;
@@ -72,20 +86,21 @@ bool myGame::checkWarningDirection(int x_, int y_, int dx_, int dy_){
 }
 
 bool myGame::checkWarningState(QChar chess_to_check_){
-    bool flag_[width][height];
+    //qDebug()<<"myGame:checkWarningState()";
     for (int i=0;i<width;++i){
         for (int j=0;j<height;++j){
-            flag_[i][j]=true;
+            flag[i][j]=true;
         }
     }
     int cnt_=0;
     for (int x_=0;x_<width;++x_){
         for (int y_=0;y_<height;++y_){
-            if (flag_[x_][y_] && state->at(x_).at(y_)==chess_to_check_){
-                if (checkWarningDirection(x_,y_,1,0)) ++cnt;
-                if (checkWarningDirection(x_,y_,0,1)) ++cnt;
-                if (checkWarningDirection(x_,y_,1,1)) ++cnt;
-                if (checkWarningDirection(x_,y_,1,-1)) ++cnt;
+            if (flag[x_][y_] && state->at(x_).at(y_)==chess_to_check_){
+                flag[x_][y_]=false;
+                if (checkWarningDirection(x_,y_,1,0)) ++cnt_;
+                if (checkWarningDirection(x_,y_,0,1)) ++cnt_;
+                if (checkWarningDirection(x_,y_,1,1)) ++cnt_;
+                if (checkWarningDirection(x_,y_,1,-1)) ++cnt_;
             }
         }
     }
@@ -93,6 +108,7 @@ bool myGame::checkWarningState(QChar chess_to_check_){
 }
 
 void myGame::setWarningPoint(){
+    //qDebug()<<"myGame::setWarningPoint()";
     for (int i=0;i<width;++i){
         for (int j=0;j<height;++j){
             if (state->at(i).at(j)==WARNING){
@@ -100,7 +116,7 @@ void myGame::setWarningPoint(){
             }
         }
     }
-    QChar chess_to_check_=player==WHITE_PLAYER?BLACK_CHESS:WHITE_CHESS;
+    QChar chess_to_check_=player==BLACK_PLAYER?BLACK_CHESS:WHITE_CHESS;
     for (int i=0;i<width;++i){
         for (int j=0;j<height;++j){
             if (state->at(i).at(j)==NOTHING){
@@ -114,23 +130,28 @@ void myGame::setWarningPoint(){
 }
 
 bool myGame::checkResultDirection(int x_, int y_, int dx_, int dy_){
+    qDebug()<<"myGame::checkResultDirection()";
     int len_,cnt_;
     checkDirection(x_,y_,dx_,dy_,len_,cnt_);
     if (len_>=5) return true;
+    return false;
 }
 
-void myGame::checkGameResult(int x_,int y_){
+bool myGame::checkGameResult(int x_,int y_){
+    qDebug()<<"myGame::checkGameResult";
     bool flag=false;
     if (checkResultDirection(x_,y_,1,0)) flag=true;
     if (checkResultDirection(x_,y_,0,1)) flag=true;
     if (checkResultDirection(x_,y_,1,1)) flag=true;
     if (checkResultDirection(x_,y_,1,-1)) flag=true;
-    if (flag){
-
-    }
+    return flag;
+    /*if (flag){
+        emit gameEnd();
+    }*/
 }
 
-void myGame::gameOperate(const QVector<QString> &strings_){
+void myGame::gameOperate(QVector<QString> strings_){
+    qDebug()<<"myGame::gameOperator";
     int x_=strings_.at(0).toInt();
     int y_=strings_.at(1).toInt();
     if (x_<0 || x_>=width) return ;
@@ -143,16 +164,26 @@ void myGame::gameOperate(const QVector<QString> &strings_){
         (*state)[x_][y_]=WHITE_CHESS;
     }
     setWarningPoint();
-    checkGameResult(x_,y_);
     emit gameStateChange(*state);
     emit gameOperated();
+    if (checkGameResult(x_,y_)) {
+        QThread::msleep(300);
+        emit gameEnd();
+    }
 }
-
+/*
 void myGame::getGameState(QVector<QString> &strings_){
+    qDebug()<<"myGame::getGameState";
     strings_=*state;
     emit gameStateGotten();
-}
-
+}*/
+/*
 void myGame::getGameResult(QVector<QString> &strings_){
 
+}*/
+
+void myGame::setGameState(QVector<QString> strings_){
+    qDebug()<<"myGame::setGameState()";
+    (*state)=strings_;
+    emit gameStateSet();
 }
