@@ -7,6 +7,7 @@
 #include <QNetworkInterface>
 #include <QList>
 #include <QObject>
+#include <QString>
 
 class myNetwork:public QObject{
 
@@ -21,6 +22,7 @@ private:
     QTcpSocket *socket;
     bool connected_flag;
     QByteArray ba;
+    QString strings;
 
     QHostAddress getIpAddress();
 

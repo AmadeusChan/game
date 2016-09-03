@@ -11,6 +11,7 @@ myNetwork::myNetwork(QObject *parent):QObject(parent){
     server=NULL;
     socket=NULL;
     qRegisterMetaType<QHostAddress>("QHostAddress");
+    strings="";
 }
 
 QHostAddress myNetwork::getIpAddress(){
@@ -88,16 +89,37 @@ void myNetwork::readData(){
         string_+=QChar(*data_);
         ++data_;
     }
+    strings+=string_;
+    while (1){
+        string_="";
+        for (int i=0;i<strings.size();++i){
+            if (strings.at(i)==QChar('&')){
+                strings.remove(0,i+1);
+                if (string_.size()) emit dataRead(string_);
+                break;
+            } else string_+=strings.at(i);
+        }
+        bool flag=true;
+        for (int i=0;i<strings.size();++i){
+            if (strings.at(i)==QChar('&')){
+                flag=false;
+                break;
+            }
+        }
+        if (flag) break;
+    }
+    /*
     if (string_.size()>=3){
         qDebug()<<"size:"<<sizeof(string_);
         emit dataRead(string_);
-    }
+    }*/
 }
 
 void myNetwork::writeData(QString data_){
     qDebug()<<"myNetwork::writeData()";
     qDebug()<<"SS:"<<&data_;
     qDebug()<<"to Write:"<<data_;
+    data_+="&";
     ba.clear();
     ba.append(data_);
     socket->write(ba);

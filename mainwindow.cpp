@@ -275,6 +275,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event){
         qDebug()<<x_<<" "<<y_;
         if (x_!=-1 && y_!=-1){
             if (operation_flag){
+                qDebug()<<"gogo";
                 strings.clear();
                 QString string_;
                 string_.setNum(x_);

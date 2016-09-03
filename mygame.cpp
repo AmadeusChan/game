@@ -164,7 +164,9 @@ void myGame::gameOperate(QVector<QString> strings_){
         (*state)[x_][y_]=WHITE_CHESS;
     }
     setWarningPoint();
+    qDebug()<<"before change state";
     emit gameStateChange(*state);
+    qDebug()<<"after change state";
     emit gameOperated();
     if (checkGameResult(x_,y_)) {
         //QThread::msleep(300);
