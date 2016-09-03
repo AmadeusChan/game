@@ -273,7 +273,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event){
             if (flag_) break;
         }
         qDebug()<<x_<<" "<<y_;
-        if (x_!=-1 && y_!=-1){
+        if (x_!=-1 && y_!=-1 && state.at(x_).at(y_)!=QChar('W') && state.at(x_).at(y_)!=QChar('B')){
             if (operation_flag){
                 qDebug()<<"gogo";
                 strings.clear();
