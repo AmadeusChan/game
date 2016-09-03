@@ -4,6 +4,7 @@
 #include <QByteArray>
 #include <QDebug>
 #include <QThread>
+#include <QHostInfo>
 
 myNetwork::myNetwork(QObject *parent):QObject(parent){
     qDebug()<<"myNetwork::myNetwork()";
@@ -16,11 +17,29 @@ myNetwork::myNetwork(QObject *parent):QObject(parent){
 
 QHostAddress myNetwork::getIpAddress(){
     qDebug()<<"myNetwork::getIpAddress()";
+    QHostAddress address_for_win_("127.0.0.1");
+    QHostInfo info_=QHostInfo::fromName(QHostInfo::localHostName());
+    qDebug()<<info_.addresses();
+    foreach(QHostAddress address_,info_.addresses()){
+        if (address_.protocol()==QAbstractSocket::IPv4Protocol){
+            qDebug()<<"Ip:"<<address_;
+            address_for_win_=address_;
+        }
+    }
+
 #ifdef _WIN32
     //return QHostAddress(QHostAddress::LocalHost);
+    return address_for_win_;
 #endif
     QList<QHostAddress> list_=QNetworkInterface::allAddresses();
     qDebug()<<list_.size();
+    for (int i=0;i<list_.size();++i){
+        if (!list_.at(i).isLoopback()){
+            if (list_.at(i).protocol()==QAbstractSocket::IPv4Protocol){
+                qDebug()<<list_.at(i);
+            }
+        }
+    }
     for (int i=0;i<list_.size();++i){
         if (!list_.at(i).isLoopback()){
             qDebug()<<"?"<<list_.at(i);

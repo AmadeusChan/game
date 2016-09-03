@@ -34,9 +34,9 @@ MainWindow::MainWindow(QWidget *parent) :
     state[2][3]=QChar('R');*/
     network=new myNetwork;
     qDebug()<<"main thread:"<<QThread::currentThreadId();
-    thread_for_network=new QThread;
-    //network->moveToThread(thread_for_network);
-    thread_for_network->start();
+    /*thread_for_network=new QThread;
+    network->moveToThread(thread_for_network);
+    thread_for_network->start();*/
 
     connect(this,SIGNAL(toSetUpClient(QHostAddress,int)),
             network,SLOT(setUpClient(QHostAddress,int)));
@@ -123,9 +123,9 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 void MainWindow::setUpGameConnection(){
-    thread_for_game=new QThread;
+    //thread_for_game=new QThread;
     //game->moveToThread(thread_for_game);
-    thread_for_game->start();
+    //thread_for_game->start();
     connect(game,SIGNAL(gameStateChange(QVector<QString>)),
             this,SLOT(refresh(QVector<QString>)));
     /*connect(network,SIGNAL(connected()),
